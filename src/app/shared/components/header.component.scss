@@ -1,0 +1,29 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+@media (max-width: 768px) {
+  .fw-bold {
+    font-size: 1rem;
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+  }
+}
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1040;
+    height: 100%;
+    top: 0;
+    left: -100%; /* oculto inicialmente */
+    transition: left 0.3s ease-in-out;
+  }
+
+  .sidebar.show {
+    left: 0; /* visible cuando se abre */
+  }
+}

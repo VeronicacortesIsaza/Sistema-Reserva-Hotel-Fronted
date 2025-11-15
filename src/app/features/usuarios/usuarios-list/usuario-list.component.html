@@ -1,0 +1,135 @@
+<div class="usuario-list">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="card-title">Gestión de Usuarios</h2>
+      <button class="btn btn-success" (click)="openCreateModal()">Nuevo Usuario</button>
+    </div>
+
+    <div class="card-body">
+      <div class="filters mb-3">
+        <div class="row">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar por nombre de usuario o id..."
+              [(ngModel)]="filters.busqueda"
+              (input)="onFilterChange()"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <select
+              class="form-control"
+              [(ngModel)]="filters.tipo_usuario"
+              (change)="onFilterChange()"
+            >
+              <option value="">Todos los tipos</option>
+              <option value="Administrador">Administrador</option>
+              <option value="Cliente">Cliente</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre completo</th>
+              <th>Teléfono</th>
+              <th>Tipo</th>
+              <th>Fecha Creaciòn</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="6" class="text-center">Cargando...</td>
+            </tr>
+
+            <tr *ngIf="!loading && usuarios.length === 0">
+              <td colspan="6" class="text-center">No hay usuarios registrados</td>
+            </tr>
+
+            <tr *ngFor="let usuario of usuarios">
+              <td>{{ usuario.id_usuario }}</td>
+              <td>{{ usuario.nombre }} {{ usuario.apellidos }}</td>
+              <td>{{ usuario.telefono }}</td>
+              <td>{{ usuario.tipo_usuario | titlecase }}</td>
+              <td>{{ usuario.fecha_creacion | date:'short' }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" (click)="editUsuario(usuario)">Editar</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteUsuario(usuario)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination mt-3" *ngIf="totalPages > 1">
+        <button class="btn btn-secondary" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+          Anterior
+        </button>
+
+        <span class="mx-3">
+          Página {{ currentPage }} de {{ totalPages }}
+        </span>
+
+        <button class="btn btn-secondary" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="showModal" class="modal show" (click)="closeModal()">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <h5 class="modal-title m-0">{{ editingUsuario ? 'Editar usuario' : 'Nuevo usuario' }}</h5>
+          <button type="button" class="close" aria-label="Cerrar" (click)="closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <form (ngSubmit)="saveUsuario()">
+            <div class="form-group">
+              <label for="nombre">Nombre *</label>
+              <input type="text" id="nombre" class="form-control" [(ngModel)]="usuarioForm.nombre" name="nombre" required />
+            </div>
+
+            <div class="form-group">
+              <label for="apellido">Apellido *</label>
+              <input type="text" id="apellidos" class="form-control" [(ngModel)]="usuarioForm.apellidos" name="apellidos" required />
+            </div>
+            <div class="form-group">
+              <label for="telefono">Teléfono *</label>
+              <input type="text" id="telefono" class="form-control" [(ngModel)]="usuarioForm.telefono" name="telefono" required />
+            </div>
+            <div class="form-group" *ngIf="!editingUsuario">
+              <label for="nombre_usuario">Nombre de usuario *</label>
+              <input type="text" id="nombre_usuario" class="form-control" [(ngModel)]="usuarioForm.nombre_usuario" name="nombre_usuario" required />
+            </div>
+            <div class="form-group" *ngIf="!editingUsuario">
+              <label for="clave">Contraseña *</label>
+              <input type="password" id="clave" class="form-control" [(ngModel)]="usuarioForm.clave" name="clave" required />
+            </div>
+            <div class="form-group" *ngIf="!editingUsuario">
+              <label for="tipo_usuario">Tipo de Usuario *</label>
+              <select id="tipo_usuario" class="form-control" [(ngModel)]="usuarioForm.tipo_usuario" name="tipo_usuario" required>
+                <option value="Administrador">Administrador</option>
+                <option value="Cliente">Cliente</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="saveUsuario()">{{ editingUsuario ? 'Actualizar' : 'Crear' }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
