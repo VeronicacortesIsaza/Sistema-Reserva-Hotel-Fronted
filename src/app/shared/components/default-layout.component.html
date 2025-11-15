@@ -1,0 +1,41 @@
+<c-sidebar
+  id="sidebar1"
+  class="sidebar sidebar-fixed border-end d-print-none"
+  colorScheme="dark"
+  [unfoldable]="true"              
+  [visible]="true" 
+>
+  <c-sidebar-header class="border-bottom">
+    <c-sidebar-brand [routerLink]="[]" class="d-flex align-items-center gap-2">
+      <h5 class="mb-0">Hotel</h5>
+    </c-sidebar-brand>
+  </c-sidebar-header>
+
+  <ng-scrollbar pointerEventsMethod="scrollbar" visibility="hover">
+    <c-sidebar-nav [navItems]="navItems" dropdownMode="close" compact></c-sidebar-nav>
+  </ng-scrollbar>
+
+  <c-sidebar-footer
+    class="border-top"
+    cSidebarToggle="sidebar1"
+    toggle="unfoldable"
+  >
+    <button cSidebarToggler aria-label="Toggle sidebar fold"></button>
+  </c-sidebar-footer>
+</c-sidebar>
+
+
+<!-- ✅ WRAPPER PRINCIPAL -->
+<div class="wrapper d-flex flex-column min-vh-100">
+
+  <!-- ✅ HEADER -->
+  <app-header></app-header>
+
+  <!-- ✅ CONTENIDO -->
+  <div class="body flex-grow-1">
+    <c-container breakpoint="lg" class="h-auto px-4">
+      <router-outlet></router-outlet>
+    </c-container>
+  </div>
+
+</div>
