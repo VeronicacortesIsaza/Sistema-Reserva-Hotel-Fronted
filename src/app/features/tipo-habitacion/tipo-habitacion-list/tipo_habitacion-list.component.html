@@ -1,0 +1,113 @@
+<div class="tipo-habitacion-list">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="card-title">Gestión de Tipos de Habitación</h2>
+      <button class="btn btn-success" (click)="openCreateModal()">
+        Nuevo Tipo
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="filters mb-3">
+        <div class="row">
+          <div class="col-md-5">
+            <input type="text"
+       class="form-control"
+       placeholder="Buscar por ID..."
+       (input)="searchIdInput.next($event.target.value)" />
+
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-secondary" (click)="clearFilters()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre Tipo</th>
+              <th>Descripción</th>
+              <th>Fecha Creación</th>
+              <th>Última Actualización</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="6" class="text-center">Cargando...</td>
+            </tr>
+            <tr *ngIf="!loading && tiposHabitacion.length === 0">
+              <td colspan="6" class="text-center">No hay tipos de habitación disponibles</td>
+            </tr>
+            <tr *ngFor="let tipo of tiposHabitacion">
+              <td>{{ tipo.id_tipo }}</td>
+              <td>{{ tipo.nombre_tipo }}</td>
+              <td>{{ tipo.descripcion || '-' }}</td>
+              <td>{{ tipo.fecha_creacion  }}</td>
+              <td>{{ tipo.fecha_edicion  }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary me-2" (click)="editTipo(tipo)">
+                  Editar
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteTipo(tipo)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination mt-3 text-center" *ngIf="totalPages > 1">
+        <button class="btn btn-secondary" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+          Anterior
+        </button>
+        <span class="mx-3">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button class="btn btn-secondary" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para crear/editar tipo de habitación -->
+  <div *ngIf="showModal" class="modal show" (click)="closeModal()">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <h5 class="modal-title m-0">
+            {{ editingTipo ? 'Editar Tipo de Habitación' : 'Nuevo Tipo de Habitación' }}
+          </h5>
+          <button type="button" class="close" aria-label="Cerrar" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveTipo()">
+            <div class="form-group mb-3">
+              <label for="nombre_tipo">Nombre *</label>
+              <input type="text" id="nombre_tipo" class="form-control" [(ngModel)]="tipoForm.nombre_tipo"
+                name="nombre_tipo" required placeholder="Ingrese el nombre del tipo de habitación" />
+            </div>
+            <div class="form-group mb-3">
+              <label for="descripcion">Descripción</label>
+              <textarea id="descripcion" class="form-control" [(ngModel)]="tipoForm.descripcion" name="descripcion"
+                rows="3" placeholder="Ingrese una descripción (opcional)"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" (click)="saveTipo()">
+            {{ editingTipo ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

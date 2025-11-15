@@ -1,0 +1,191 @@
+<div class="reserva-list">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="card-title mb-0">Gestión de Reservas</h2>
+      <button class="btn btn-success" (click)="openCreateModal()">Nueva Reserva</button>
+    </div>
+
+    <div class="card-body">
+      <!-- Filtros -->
+      <div class="filters mb-3">
+        <div class="row">
+            <div class="col-md-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="ID Reserva"
+        [(ngModel)]="filters.id_reserva"
+        (input)="onFilterChange()"
+      />
+    </div>
+
+          <div class="col-md-3">
+            <select class="form-control" [(ngModel)]="filters.estado_reserva" (change)="onFilterChange()">
+              <option value="">Todos los estados</option>
+              <option value="Activa">Activa</option>
+              <option value="Cancelada">Cancelada</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-secondary w-100" (click)="clearFilters()">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de reservas -->
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Habitación</th>
+              <th>Fecha Ingreso</th>
+              <th>Fecha Salida</th>
+              <th>Estado</th>
+              <th>Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="8" class="text-center">Cargando...</td>
+            </tr>
+            <tr *ngIf="!loading && reservas.length === 0">
+              <td colspan="8" class="text-center">No hay reservas registradas</td>
+            </tr>
+            <tr *ngFor="let reserva of reservas">
+              <td>{{ reserva.id_reserva }}</td>
+              <td>{{ getNombreUsuario(reserva.id_usuario) }}</td>
+              <td>{{ getNumeroHabitacion(reserva.id_habitacion) }}</td>
+              <td>{{ reserva.fecha_entrada}}</td>
+              <td>{{ reserva.fecha_salida }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                        'bg-success': reserva.estado_reserva === 'Activa',
+                        'bg-danger': reserva.estado_reserva === 'Cancelada',
+                      }">
+                  {{ reserva.estado_reserva }}
+                </span>
+              </td>
+              <td>{{ reserva.costo_total | currency:'COP' }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary me-1" (click)="editReserva(reserva)">Editar</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteReserva(reserva)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination mt-3 text-center" *ngIf="totalPages > 1">
+        <button class="btn btn-secondary" [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)">Anterior</button>
+        <span class="mx-3">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button class="btn btn-secondary" [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showModal" class="modal show" (click)="closeModal()">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <h5 class="modal-title m-0">{{ editingReserva ? 'Editar Reserva' : 'Nueva Reserva' }}</h5>
+          <button type="button" class="close" aria-label="Cerrar" (click)="closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <form (ngSubmit)="saveReserva()">
+            <select class="form-select" [(ngModel)]="reservaForm.id_usuario" name="id_usuario" required>
+              <option value="">Seleccione un usuario</option>
+              <option *ngFor="let usuario of todosLosUsuarios" [value]="usuario.id_usuario">
+                {{ usuario.nombre }} {{ usuario.apellidos }}
+              </option>
+            </select>
+
+            <div class="form-group mb-2">
+  <label class="form-label">Habitación *</label>
+
+  <!-- ✅ SOLO SE MUESTRA AL EDITAR Y CUANDO NO QUIERE CAMBIAR -->
+  <div *ngIf="editingReserva && !cambiarHabitacion">
+    <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+      <span>
+        <strong>Actual:</strong>
+        {{ habitacionActual?.numero }} -
+        {{ getNombreTipoHabitacion(habitacionActual?.id_tipo) }}
+      </span>
+
+      <button class="btn btn-warning btn-sm" (click)="activarCambioHabitacion()">
+        Cambiar
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ SI ES CREAR O SI PRESIONÓ “CAMBIAR” -->
+  <div *ngIf="!editingReserva || cambiarHabitacion" class="mt-2">
+    <select class="form-select"
+            [(ngModel)]="reservaForm.id_habitacion"
+            name="id_habitacion"
+            required>
+
+      <option value="">Seleccione una habitación</option>
+
+      <!-- ✅ SOLO HABITACIONES DISPONIBLES -->
+      <option *ngFor="let h of habitacionesForm" [value]="h.id_habitacion">
+        {{ h.numero }} -
+        {{ getNombreTipoHabitacion(h.id_tipo) }}
+      </option>
+    </select>
+
+    <!-- ✅ BOTÓN PARA CANCELAR CAMBIO SOLO EN EDICIÓN -->
+    <button *ngIf="editingReserva"
+            type="button"
+            class="btn btn-secondary btn-sm mt-2"
+            (click)="cancelarCambioHabitacion()">
+      Mantener habitación actual
+    </button>
+  </div>
+</div>
+
+            <div class="form-group mb-2">
+              <label for="fecha_ingreso">Fecha Ingreso *</label>
+              <input type="date" class="form-control" id="fecha_entrada" [(ngModel)]="reservaForm.fecha_entrada"
+                name="fecha_entrada" required />
+            </div>
+
+            <div class="form-group mb-2">
+              <label for="fecha_salida">Numero de noches *</label>
+              <input type="number" class="form-control" id="noches" name="noches" [(ngModel)]="reservaForm.noches"
+                min="1" required />
+            </div>
+
+            <div class="form-group mb-2">
+              <label for="estado">Estado *</label>
+              <select class="form-control" id="estado" [(ngModel)]="reservaForm.estado_reserva" name="estado_reserva"
+                required>
+                <option value="Activa">Activa</option>
+                <option value="Cancelada">Cancelada</option>
+              </select>
+            </div>
+            <div class="form-group mb-2">
+              <label for="numero_de_personas">Numero de personas *</label>
+              <input type="number" class="form-control" id="numero_de_personas" name="numero_de_personas"
+                [(ngModel)]="reservaForm.numero_de_personas" min="1" required />
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="saveReserva()">
+            {{ editingReserva ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

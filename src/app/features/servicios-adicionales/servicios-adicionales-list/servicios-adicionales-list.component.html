@@ -1,0 +1,116 @@
+<div class="servicio-adicional-list">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Gestión de Servicios</h2>
+      <button class="btn btn-success" (click)="openCreateModal()">
+        Nuevo Servicio
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="filters mb-3">
+        <div class="row">
+          <div class="col-md-5">
+            <input type="text" class="form-control" placeholder="Buscar por ID..." [(ngModel)]="filters.id_servicio"
+              (input)="onFilterChange()" />
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-secondary" (click)="clearFilters()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Fecha Creación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="6" class="text-center">Cargando...</td>
+            </tr>
+            <tr *ngIf="!loading && servicios.length === 0">
+              <td colspan="6" class="text-center">No hay servicios disponibles</td>
+            </tr>
+            <tr *ngFor="let servicio of servicios">
+              <td>{{ servicio.id_servicio }}</td>
+              <td>{{ servicio.nombre_servicio }}</td>
+              <td>{{ servicio.descripcion || '-' }}</td>
+              <td>{{ servicio.precio | currency:'COP' }}</td>
+              <td>{{ servicio.fecha_creacion | date:'short' }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" (click)="editServicio(servicio)">
+                  Editar
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteServicio(servicio)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination mt-3" *ngIf="totalPages > 1">
+        <button class="btn btn-secondary" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+          Anterior
+        </button>
+        <span class="mx-3">
+          Página {{ currentPage }} de {{ totalPages }}
+        </span>
+        <button class="btn btn-secondary" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para crear/editar servicio -->
+  <div *ngIf="showModal" class="modal show" (click)="closeModal()">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <h5 class="modal-title m-0">
+            {{ editingServicio ? 'Editar Servicio' : 'Nuevo Servicio' }}
+          </h5>
+          <button type="button" class="close" aria-label="Cerrar" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveServicio()">
+            <div class="form-group">
+              <label for="nombre_servicio">Nombre *</label>
+              <input type="text" class="form-control" id="nombre_servicio" [(ngModel)]="servicioForm.nombre_servicio"
+                name="nombre_servicio" required placeholder="Ingrese el nombre del servicio">
+            </div>
+            <div class="form-group">
+              <label for="descripcion">Descripción</label>
+              <textarea class="form-control" id="descripcion" [(ngModel)]="servicioForm.descripcion" name="descripcion"
+                rows="3" placeholder="Ingrese una descripción (opcional)"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="precio">Precio *</label>
+              <input type="number" class="form-control" id="precio" [(ngModel)]="servicioForm.precio" name="precio"
+                required min="0" placeholder="Ingrese el precio del servicio">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="saveServicio()">
+            {{ editingServicio ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
