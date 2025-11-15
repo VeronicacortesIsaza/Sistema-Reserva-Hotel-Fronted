@@ -1,0 +1,24 @@
+<div class="perfil-container">
+  <div class="perfil-card" *ngIf="usuario; else noUsuario">
+    <h2 class="perfil-titulo">Perfil de {{ usuario.tipo_usuario }}</h2>
+
+    <div class="perfil-info">
+      <p><strong>Nombre:</strong> {{ usuario.nombre }} {{ usuario.apellidos }}</p>
+      <p><strong>Nombre de usuario:</strong> {{ usuario.nombre_usuario }}</p>
+      <p><strong>Tipo de usuario:</strong> {{ usuario.tipo_usuario }}</p>
+      <p><strong>Fecha de creación:</strong> {{ usuario.fecha_creacion | date:'short' }}</p>
+      <p><strong>Última edición:</strong> {{ usuario.fecha_edicion | date:'short' }}</p>
+    </div>
+
+    <div class="perfil-footer">
+      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <ng-template #noUsuario>
+    <div class="no-usuario">
+      <h3>No hay información del usuario</h3>
+      <p>Por favor inicia sesión para ver tu perfil.</p>
+    </div>
+  </ng-template>
+</div>

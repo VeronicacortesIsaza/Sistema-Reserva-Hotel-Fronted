@@ -1,0 +1,127 @@
+<div class="habitacion-list">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="card-title mb-0">Gestión de Habitaciones</h2>
+      <button class="btn btn-success" (click)="openCreateModal()">Nueva Habitación</button>
+    </div>
+
+    <div class="card-body">
+      <div class="filters mb-3">
+        <div class="row">
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Buscar por número o tipo..."
+              [(ngModel)]="filters.busqueda" (input)="onFilterChange()">
+          </div>
+          <div class="col-md-3">
+            <select class="form-control" [(ngModel)]="filters.disponible" (change)="onFilterChange()">
+              <option value="">Todas</option>
+              <option [ngValue]="true">Disponibles</option>
+              <option [ngValue]="false">Ocupadas</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de habitaciones -->
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Número</th>
+              <th>Tipo</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th>Fecha Creación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="7" class="text-center">Cargando...</td>
+            </tr>
+            <tr *ngIf="!loading && habitaciones.length === 0">
+              <td colspan="7" class="text-center">No hay habitaciones registradas</td>
+            </tr>
+            <tr *ngFor="let habitacion of habitaciones">
+              <td>{{ habitacion.id_habitacion }}</td>
+              <td>{{ habitacion.numero }}</td>
+              <td>{{ getNombreTipoHabitacion(habitacion.id_tipo) }}</td>
+              <td>{{ habitacion.precio | currency:'COP' }}</td>
+              <td>
+                <span class="badge" [class.bg-success]="habitacion.disponible"
+                  [class.bg-danger]="!habitacion.disponible">
+                  {{ habitacion.disponible ? 'Disponible' : 'Ocupada' }}
+                </span>
+              </td>
+              <td>{{ habitacion.fecha_creacion }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary me-2" (click)="editHabitacion(habitacion)">Editar</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteHabitacion(habitacion)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination mt-3 text-center" *ngIf="totalPages > 1">
+        <button class="btn btn-secondary me-2" [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)">Anterior</button>
+        <span class="mx-2">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button class="btn btn-secondary ms-2" [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear / Editar -->
+  <div *ngIf="showModal" class="modal show" (click)="closeModal()" style="display:block; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <h5 class="modal-title m-0">{{ editingHabitacion ? 'Editar habitación' : 'Nueva habitación' }}</h5>
+          <button type="button" class="close" aria-label="Cerrar" (click)="closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Número *</label>
+              <input type="number" class="form-control" [(ngModel)]="habitacionForm.numero" name="numero" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tipo *</label>
+              <select class="form-select" [(ngModel)]="habitacionForm.id_tipo" name="id_tipo" required>
+                <option value="">Seleccione un tipo</option>
+                <option *ngFor="let tipo of tiposHabitacion" [value]="tipo.id_tipo">{{ tipo.nombre_tipo }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Precio *</label>
+              <input type="number" class="form-control" [(ngModel)]="habitacionForm.precio" name="precio" required>
+            </div>
+
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="disponible" [(ngModel)]="habitacionForm.disponible"
+                name="disponible">
+              <label class="form-check-label" for="disponible">Disponible</label>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="saveHabitacion()">
+            {{ editingHabitacion ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
